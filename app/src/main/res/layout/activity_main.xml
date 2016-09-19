@@ -3,11 +3,14 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#457"
     >
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="200dp"
         android:text="Hello World!"
-        android:background="#fff"/>
+        android:background="#444"/>
+
+
 </win.whitelife.swipefinishdemo.SwipeFinishLayout>

@@ -2,12 +2,14 @@ package win.whitelife.swipefinishdemo;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 /**
@@ -16,7 +18,7 @@ import android.widget.Scroller;
 
 public class SwipeFinishLayout extends ViewGroup {
 
-    private View rootView;
+    private FrameLayout rootView;
 
     private int width;
 
@@ -49,13 +51,28 @@ public class SwipeFinishLayout extends ViewGroup {
 
     public SwipeFinishLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs,defStyleAttr);
     }
 
-    private void init(){
+    private void init( AttributeSet attrs, int defStyleAttr){
         lastPoint=new PointF();
+        rootView=new FrameLayout(getContext(),attrs,defStyleAttr);
+        LayoutParams layoutParams=new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+        rootView.setLayoutParams(layoutParams);
+
+        this.addView(rootView);
+        this.setBackgroundColor(Color.TRANSPARENT);
     }
 
+
+    @Override
+    public void addView(View child, int index, LayoutParams params) {
+        if(child==rootView) {
+            super.addView(child, index, params);
+        }else{
+            rootView.addView(child,index,params);
+        }
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -74,13 +91,6 @@ public class SwipeFinishLayout extends ViewGroup {
     }
 
 
-    @Override
-    public void addView(View child, int index, LayoutParams params) {
-        super.addView(child, index, params);
-        if(rootView==null){
-            rootView=child;
-        }
-    }
 
 
     @Override
@@ -104,13 +114,12 @@ public class SwipeFinishLayout extends ViewGroup {
                     } else {
                         scrollTo(0, 0);
                     }
-
+                    lastPoint.x = x;
+                    lastPoint.y = y;
                     if(rootView!=null&&isTransparent){
                         rootView.setAlpha(1-Math.abs(this.getScrollX()*1.0f/width)/5);
                     }
-
-                    lastPoint.x = x;
-                    lastPoint.y = y;
+                    invalidate();
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -146,7 +155,7 @@ public class SwipeFinishLayout extends ViewGroup {
     }
 
     public void setSwipeTransparent(boolean isTransparent){
-       this.isTransparent=isTransparent;
+        this.isTransparent=isTransparent;
     }
 
 
@@ -156,7 +165,7 @@ public class SwipeFinishLayout extends ViewGroup {
         if(scroller!=null&&scroller.computeScrollOffset()){
             int x=scroller.getCurrX();
             int y=scroller.getCurrY();
-            scrollTo(x,y);
+            if(rootView!=null) scrollTo(x,y);
             if(rootView!=null&&isTransparent){
                 rootView.setAlpha(1-Math.abs(this.getScrollX()*1.0f/width)/5);
             }
