@@ -2,7 +2,7 @@
 右滑返回，自动关闭activity
 
 ## 示例
-[效果图]{http://7xjrms.com1.z0.glb.clouddn.com/mzswipe%20finish.gif}
+![效果图]{http://7xjrms.com1.z0.glb.clouddn.com/mzswipe%20finish.gif}
 
 ## 使用方法
 
