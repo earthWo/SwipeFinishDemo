@@ -4,6 +4,21 @@
 ## 示例
 ![效果图](http://7xjrms.com1.z0.glb.clouddn.com/mzswipe%20finish.gif)
 
+导入方法：
+gradle:
+```
+compile 'library.whitelife:swipefinishlib:0.1.0'
+```
+maven：
+```
+<dependency>
+  <groupId>library.whitelife</groupId>
+  <artifactId>swipefinishlib</artifactId>
+  <version>0.1.0</version>
+  <type>pom</type>
+</dependency>
+```
+
 ## 使用方法：
 ```
 <com.orange.library.SwipeFinishLayout
