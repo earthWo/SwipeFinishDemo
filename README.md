@@ -7,14 +7,14 @@
 导入方法：
 gradle:
 ```
-compile 'library.whitelife:swipefinishlib:0.1.0'
+compile 'library.whitelife:swipefinishlib:0.1.1'
 ```
 maven：
 ```
 <dependency>
   <groupId>library.whitelife</groupId>
   <artifactId>swipefinishlib</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <type>pom</type>
 </dependency>
 ```

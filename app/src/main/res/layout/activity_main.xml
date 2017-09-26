@@ -6,9 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#457"
-    swipe:is_full_screen="true"
+    swipe:is_full_screen="false"
     swipe:max_scroll_time="300"
-    swipe:scroll_mode="BOTTOM"
+    swipe:scroll_mode="TOP"
+    swipe:touch_size="300dp"
    >
 
     <TextView

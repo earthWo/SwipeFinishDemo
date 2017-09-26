@@ -5,13 +5,15 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
+
+import java.lang.reflect.Field;
 
 import win.whitelife.swipefinishlibrary.R;
 
@@ -132,7 +134,7 @@ public class SwipeFinishLayout extends FrameLayout {
         }
 
         if(typedArray.hasValue(R.styleable.SwipeFinishLayout_is_full_screen)){
-            isFullScreen=typedArray.getBoolean(R.styleable.SwipeFinishLayout_is_full_screen,false);
+            isFullScreen=typedArray.getBoolean(R.styleable.SwipeFinishLayout_is_full_screen,false)&&canFullScreen();
         }
 
         if(typedArray.hasValue(R.styleable.SwipeFinishLayout_max_scroll_time)){
@@ -143,7 +145,6 @@ public class SwipeFinishLayout extends FrameLayout {
             int l=typedArray.getInt(R.styleable.SwipeFinishLayout_scroll_mode,0);
             setMode(l);
         }
-
 
         typedArray.recycle();
     }
@@ -159,6 +160,32 @@ public class SwipeFinishLayout extends FrameLayout {
             rootView=this;
         }
         startPoint=new Point();
+    }
+
+
+    private int getStatusBarHeight(){
+        if(isFullScreen){
+            return 0;
+        }else{
+            int x = 0, statusBarHeight = 0;
+            Class<?> c = null;
+            try {
+                c = Class.forName("com.android.internal.R$dimen");
+                Object obj = c.newInstance();
+                Field field = c.getField("status_bar_height");
+                x = Integer.parseInt(field.get(obj).toString());
+                statusBarHeight = getContext().getResources().getDimensionPixelSize(x);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+            return statusBarHeight;
+        }
     }
 
 
@@ -204,28 +231,34 @@ public class SwipeFinishLayout extends FrameLayout {
         return dm.heightPixels;
     }
 
+
+    private boolean canFullScreen(){
+        return Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    }
+
     /**
      * 设置滑动触控位置
      */
     private void setFirstTouchRect(){
         int left,right,top,bottom;
+        int statusBarHeight=getStatusBarHeight();
         switch (scrollMode){
             case LEFT:
                 left=0;
-                top=0;
+                top=statusBarHeight;
                 bottom=height;
                 right=touchSize;
                 break;
             case RIGHT:
                 left=width-touchSize;
-                top=0;
+                top=statusBarHeight;
                 bottom=height;
                 right=width;
                 break;
             case TOP:
                 left=0;
-                top=0;
-                bottom=touchSize;
+                top=statusBarHeight;
+                bottom=touchSize+statusBarHeight;
                 right=width;
                 break;
             default:
@@ -321,7 +354,6 @@ public class SwipeFinishLayout extends FrameLayout {
         if(scrollMode==ScrollMode.RIGHT||scrollMode==ScrollMode.LEFT){
             return 1-(1-finalAlpha)*(scrollMove*1.0f/width);
         }else{
-            Log.d("to透明度", scrollMove+"");
             return 1-(1-finalAlpha)*(scrollMove*1.0f/height);
         }
     }
@@ -408,6 +440,7 @@ public class SwipeFinishLayout extends FrameLayout {
 
     @Override
     public void computeScroll() {
+        if(scroller!=null)
         if(scroller!=null&&scroller.computeScrollOffset()){
             int x=scroller.getCurrX();
             int y=scroller.getCurrY();
@@ -415,6 +448,7 @@ public class SwipeFinishLayout extends FrameLayout {
                 rootView.layout(x,y,width+x,height+y);
             }
             rootView.setAlpha(getViewFinalAlpha(scrollMode==ScrollMode.RIGHT||scrollMode==ScrollMode.LEFT?x:y));
+            finishActivity(x,y);
             invalidate();
         }else if(scroller!=null&&!scroller.computeScrollOffset()&&isFinish){
             scroller=null;
@@ -423,7 +457,19 @@ public class SwipeFinishLayout extends FrameLayout {
             }
         }else{
             scroller=null;
+            invalidate();
         }
+    }
+
+
+    private void finishActivity(int currentX,int currentY){
+        if(scroller.getFinalX()==currentX&&scroller.getFinalY()==currentY&&isFinish){
+            scroller=null;
+            if(getContext() instanceof Activity){
+                ((Activity) getContext()).finish();
+            }
+        }
+
     }
 
 
@@ -432,7 +478,7 @@ public class SwipeFinishLayout extends FrameLayout {
     }
 
     public void setFullScreen(boolean isFullScreen) {
-        this.isFullScreen = isFullScreen;
+        this.isFullScreen = isFullScreen&&canFullScreen();
         if(isFullScreen){
             height=getScreenHeight();
         }
